@@ -61,7 +61,7 @@ void addFriend(User *&friends, const char *name) {
 }
 
 
-// remove friend belom slese T.T
+// remove friend
 void removeFriend(User *&friends, const char *name) {
   if(!friends) {
     puts("No friends!");
