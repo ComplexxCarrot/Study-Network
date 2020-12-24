@@ -1,191 +1,82 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#define gtc getchar
-// #define ll long long int
-
-
-struct User {
-  char name[255];
-  char password[255];
-  User *friends;
-  User *next, *prev;
-};
-
-
-User *newUser(const char *name) {
-  User *temp = (User*)malloc(sizeof(User));
+void allUser(){
+	int count=1;
+	printf("[All User]\n");
+	printf("No.\tUsername\n");
+	UserNode *store = userhead;
+	while(store!=NULL){
+		if(strcmp(store->name,usercurr->name)!=0){
+			printf("%d\t%s\n",count++,store->name);
+		}
+	}
+}
+void allFriends(){
+	printf ("[All Friends of %s\n",usercurr->name);
+    printf("No.\tUsername\n");
+	int count=1;
+    Friends *mainFriends = usercurr->friends;
+    while(mainFriends!=NULL){
+    	printf("%d\t%s\n",count++,mainFriends->name);
+    	mainFriends = mainFriends->nextfriends;
+	}
+	printf("\n");
+}
+//create friends
+Friends *newUserFriend(const char *name) {
+  Friends *temp = (Friends*)malloc(sizeof(Friends));
   strcpy(temp->name, name);
-  temp->next = temp->prev = NULL;
+  temp->nextfriends = NULL;
   return temp;
 }
 
-// push function
-void push(User *&users, const char *name) {
-  User *temp = newUser(name);
-  temp->friends = NULL; // 
-  if(!users) {
-    users = temp;
-  }
-  else {
-    temp->next = users;
-    users->prev = temp;
-    users = temp;
-  }
-}
-// print users
-void printUsers(User *&users) {
-  // if there is no user, return
-  if(!users) {
-    puts("No users!");
-    return;
-  }
-  User *temp = users;
-  int i = 1; // indexing
-  while(temp) {
-    printf("%d. %s\n", i++, temp->name);
-    temp = temp->next;
-  }
-}
 // add friend
-void addFriend(User *&friends, const char *name) {
-  User *temp = newUser(name);
-  if(!friends) {
-    friends = temp;
+void addFriend(){
+  allUser();
+  printf("Which user do you want to add?\n");
+  printf(">> ");char name[255];
+  scanf("%[^\n]",name);getchar();
+  Friends *temp = newUserFriend(name);
+  Friends *temp2 = usercurr->friends;
+  if(!usercurr->friends) {
+    usercurr->friends = temp;
   } else {
-    temp->next = friends;
-    friends->prev = temp;
-    friends = temp;
+  	while(temp2->nextfriends!=NULL){
+  		temp2 = temp2->nextfriends;
+	}
+    temp2->nextfriends = temp;
   }
-
 }
 
 
 // remove friend
-void removeFriend(User *&friends, const char *name) {
-  if(!friends) {
+void removeFriend() {
+  allFriends();
+  printf("Which user do you want to remove?\n");
+  printf(">> ");char nama[255];
+  scanf("%[^\n]",nama);getchar();
+  if(!usercurr->friends){
     puts("No friends!");
-    return;
-  }
-  else if(strcmp(friends->name, name) == 0) { // depan
-    User *temp = friends->next;
-    friends->next = temp->prev = NULL;
-    free(friends);
-    friends = temp;
+    printf("press anything to continue...");
+		getchar();loginMenu();;
   }
   else {
-    User *curr = friends;
-    // search for friend
-    while(curr && strcmp(curr->name, name) != 0) { 
-      curr = curr->next;
-    }
-    if(!curr) { // if not exist
-      puts("User not found!");
-      return;
-    }
-    if(!(curr->next) && strcmp(curr->name, name) == 0) { // last
-      User *temp = curr->prev;
-      temp->next = curr->prev = NULL;
-      free(curr);
-      return;
-    }
-    // middle
-    if(strcmp(curr->name, name) == 0) {
-      User *temp = curr, *left = curr->prev, *right = curr->next;
-      temp->prev = temp->next = NULL;
-      left->next = right;   
-      right->prev = left;
-      free(temp);
-      temp = NULL;
-    }
+  	Friends *store = usercurr->friends;
+  	bool flag=true;
+  	while(!store->nextfriends!=NULL){
+  		if(strcmp(store->nextfriends->name, nama)==0){
+  			Friends *temp3 = store->nextfriends->nextfriends;
+  			store->nextfriends = NULL;
+  			free(store->nextfriends);
+  			store->nextfriends = temp3;
+  			flag=false;break;
+		}else{
+			store = store->nextfriends;
+		}
+	}
+	if(flag){
+		puts("User not found!");
+		printf("press anything to continue...");
+		getchar();
+		loginMenu();
+	}
  }
-}
-
-
-
-int main(){
-
-  // sementara input manual
-  User *users = NULL;
-  push(users, "Oiko");
-  push(users, "Adam");
-  push(users, "Jokris");
-  push(users, "Kevin");
-
-  User *user = users->next; // choose current user (Jokris) <-- misal
-
-  // display available user 
-  User *temp = users;
-  int num = 1;
-  puts("Available users:");
-  while(temp) {
-    if(strcmp(temp->name, user->name) == 0) {
-      temp = temp->next;
-      continue;
-    }
-    printf("%d. %s\n", num++, temp->name);
-    temp = temp->next;
-  }
-
-  // Choose A user to add to user's friend list
-  char *name = (char*)malloc(sizeof(char));
-  temp = users;
-  while(true) {
-    printf("add: ");
-    scanf("%s", name); gtc();
-    // search for user if available = add, else break
-    bool exist = false;
-    while(temp) {
-      if(strcmp(temp->name, name) == 0) {
-        addFriend(user->friends, temp->name);
-        printf("Your request has been sent to %s\n", name);
-        printf("Press enter to continue!"); gtc();
-        exist = true;
-        break;
-      }
-      temp = temp->next;
-    }
-    if(!exist) {
-      printf("There is no user with such name!\nPress enter to re-enter the user!"); gtc();
-    } else {
-      break;
-    }
-  }
-
-  addFriend(user->friends, users->name);
-  addFriend(user->friends, users->next->next->name);
-  // display user's friend list
-  printf("friend:\n");
-  printUsers(user->friends);
-
-  // choose user's friend to remove
-  temp = user->friends;
-  while(true) {
-    printf("remove: ");
-    scanf("%s", name); gtc();
-    // search for user if available = add, else break
-    bool exist = false;
-    while(temp) {
-      if(strcmp(temp->name, name) == 0) {
-        removeFriend(user->friends, name);
-        printf("You are no longer friend with %s\n", name);
-        printf("Press enter to continue!"); gtc();
-        exist = true;
-        break;
-      }
-      temp = temp->next;
-    }
-    if(!exist) {
-      printf("There is no user with such name!\nPress enter to re-enter the user!"); gtc();
-    } else {
-      break;
-    }
-  }
-
-  // display user's friend list
-  printf("friend:\n");
-  printUsers(user->friends);
-
-
-  return 0;
 }
