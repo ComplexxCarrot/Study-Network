@@ -60,16 +60,45 @@ void addFriend(User *&friends, const char *name) {
 
 }
 
+
 // remove friend belom slese T.T
 void removeFriend(User *&friends, const char *name) {
-  if(strcmp(friends->name, name) == 0) {
+  if(!friends) {
+    puts("No friends!");
+    return;
+  }
+  else if(strcmp(friends->name, name) == 0) { // depan
     User *temp = friends->next;
     friends->next = temp->prev = NULL;
     free(friends);
     friends = temp;
-  } else {
-    
   }
+  else {
+    User *curr = friends;
+    // search for friend
+    while(curr && strcmp(curr->name, name) != 0) { 
+      curr = curr->next;
+    }
+    if(!curr) { // if not exist
+      puts("User not found!");
+      return;
+    }
+    if(!(curr->next) && strcmp(curr->name, name) == 0) { // last
+      User *temp = curr->prev;
+      temp->next = curr->prev = NULL;
+      free(curr);
+      return;
+    }
+    // middle
+    if(strcmp(curr->name, name) == 0) {
+      User *temp = curr, *left = curr->prev, *right = curr->next;
+      temp->prev = temp->next = NULL;
+      left->next = right;
+      right->prev = left;
+      free(temp);
+      temp = NULL;
+    }
+ }
 }
 
 
@@ -102,7 +131,7 @@ int main(){
   char *name = (char*)malloc(sizeof(char));
   temp = users;
   while(true) {
-    printf("username: ");
+    printf("add: ");
     scanf("%s", name); gtc();
     // search for user if available = add, else break
     bool exist = false;
@@ -123,8 +152,40 @@ int main(){
     }
   }
 
+  addFriend(user->friends, users->name);
+  addFriend(user->friends, users->next->next->name);
   // display user's friend list
   printf("friend:\n");
   printUsers(user->friends);
+
+  // choose user's friend to remove
+  temp = user->friends;
+  while(true) {
+    printf("remove: ");
+    scanf("%s", name); gtc();
+    // search for user if available = add, else break
+    bool exist = false;
+    while(temp) {
+      if(strcmp(temp->name, name) == 0) {
+        removeFriend(user->friends, name);
+        printf("You are no longer friend with %s\n", name);
+        printf("Press enter to continue!"); gtc();
+        exist = true;
+        break;
+      }
+      temp = temp->next;
+    }
+    if(!exist) {
+      printf("There is no user with such name!\nPress enter to re-enter the user!"); gtc();
+    } else {
+      break;
+    }
+  }
+
+  // display user's friend list
+  printf("friend:\n");
+  printUsers(user->friends);
+
+
   return 0;
 }
