@@ -93,7 +93,7 @@ void removeFriend(User *&friends, const char *name) {
     if(strcmp(curr->name, name) == 0) {
       User *temp = curr, *left = curr->prev, *right = curr->next;
       temp->prev = temp->next = NULL;
-      left->next = right;
+      left->next = right;   
       right->prev = left;
       free(temp);
       temp = NULL;
